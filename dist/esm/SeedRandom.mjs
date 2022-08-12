@@ -6,12 +6,11 @@ const significance = Math.pow(2, digits);
 const overflow = significance * 2;
 const mask = width - 1;
 export class SeedRandom {
-    constructor(seed) {
+    constructor() {
+        this.seed = null;
         this.pool = [];
         this.key = [];
-        this._seed = null;
         this.arc4 = {};
-        this.seed = seed;
     }
     _genArc4(arc4, k) {
         let t = 0;
@@ -62,14 +61,20 @@ export class SeedRandom {
     _int32(arc4) { return this._arc4g(arc4, 4) | 0; }
     _quick(arc4) { return this._arc4g(arc4, 4) / 0x100000000; }
     _double(arc4) { return this._prng(arc4); }
-    set seed(v) {
-        this._seed = v;
+    setScene(seed, key, pool) {
+        if (seed && seed.length)
+            this.seed = seed;
+        if (key)
+            this.key = [...key];
+        if (pool)
+            this.pool = [...pool];
     }
-    setSeed(v) {
-        this._seed = v;
-    }
-    get seed() {
-        return this._seed;
+    get scene() {
+        return {
+            seed: this.seed,
+            key: [...this.key],
+            pool: [...this.pool]
+        };
     }
     _flatten(obj, depth) {
         let result = [];
@@ -131,10 +136,6 @@ export class SeedRandom {
     }
     rangeInt(from, to) {
         return Math.floor(from + (this.random() * (to - from)));
-    }
-    static create(seed) {
-        const sr = new SeedRandom(seed);
-        return sr;
     }
 }
 //# sourceMappingURL=SeedRandom.js.map

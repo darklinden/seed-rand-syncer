@@ -109,7 +109,7 @@ export class ValueProcessor {
         return out;
     }
 
-    public Color<Out extends IColorLike>(out: Out) {
+    public Color<Out extends IColorLike>(out: Out): Out {
         out.r = this.RangeInt(0, 255);
         out.g = this.RangeInt(0, 255);
         out.b = this.RangeInt(0, 255);
@@ -117,7 +117,7 @@ export class ValueProcessor {
         return out;
     }
 
-    public FloatColor<Out extends IFloatColorLike>(out: Out) {
+    public FloatColor<Out extends IFloatColorLike>(out: Out): Out {
         out.r = this.RangeFloat(0, 1);
         out.g = this.RangeFloat(0, 1);
         out.b = this.RangeFloat(0, 1);

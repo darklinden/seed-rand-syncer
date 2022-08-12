@@ -1,37 +1,78 @@
 import { SeedRandom } from "./SeedRandom.mjs";
+import { ValueProcessor } from "./ValueProcessor.mjs";
+const SEED_LEN = 16;
 export class SeedRandomInstance {
     constructor(seedTypeKey) {
         this._index = 0;
+        this._valueProcessor = null;
         this.seedTypeKey = seedTypeKey;
-        this.random = new SeedRandom(null);
+        this.random = new SeedRandom();
         this.history = new Array();
     }
     get index() { return this._index; }
+    normalizeSeed(seed) {
+        if (!seed || !seed.length)
+            throw new Error('SeedRandomInstance.normalizeSeed seed should not be null! ' + this.seedTypeKey);
+        while (seed.length < SEED_LEN) {
+            const last = seed[seed.length - 1];
+            const lastIdx = parseInt(last);
+            if (!isNaN(lastIdx)) {
+                seed += seed[lastIdx % seed.length];
+            }
+            else {
+                seed += last;
+            }
+        }
+        if (seed.length > SEED_LEN) {
+            seed = seed.substring(0, SEED_LEN);
+        }
+        return seed;
+    }
     resetSeed(seed) {
-        this.startSeed = seed;
-        this.random.setSeed(seed);
+        this.random.setScene(this.normalizeSeed(seed), [], []);
         this.history.length = 0;
+    }
+    get seed() {
+        return this.random.seed;
     }
     setIndex(index) {
         this._index = index;
     }
-    setSeed(seed) {
-        this.random.setSeed(seed);
-    }
     rand() {
         while (this._index >= this.history.length) {
             let value = this.random.double();
-            this.history.push([value, this.random.seed]);
+            this.history.push(value);
         }
-        const ret = this.history[this._index][0];
+        const ret = this.history[this._index];
         this._index++;
         return ret;
     }
-    jsonObj() {
+    Value() {
+        if (!this._valueProcessor) {
+            this._valueProcessor = new ValueProcessor(() => { return this.rand(); });
+        }
+        return this._valueProcessor;
+    }
+    initFromJSON(json) {
+        const data = typeof json == 'string' ? JSON.parse(json) : json;
+        this.history.length = 0;
+        if (data.history && data.history.length) {
+            this.history.push(...data.history);
+        }
+        if (data.scene) {
+            this.random.setScene(data.scene.seed, data.scene.key, data.scene.pool);
+        }
+    }
+    static fromJSON(key, json) {
+        const sri = new SeedRandomInstance(key);
+        sri.initFromJSON(json);
+        return sri;
+    }
+    toJSON() {
         return {
             seedTypeKey: this.seedTypeKey,
-            startSeed: this.startSeed,
             history: this.history,
+            scene: this.random.scene
         };
     }
 }

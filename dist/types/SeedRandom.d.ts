@@ -1,3 +1,8 @@
+interface IRandScene {
+    seed: string;
+    key?: number[];
+    pool?: number[];
+}
 export declare class SeedRandom {
     private _genArc4;
     private _arc4g;
@@ -5,12 +10,11 @@ export declare class SeedRandom {
     private _int32;
     private _quick;
     private _double;
+    seed: string;
     pool: number[];
     key: number[];
-    private _seed;
-    set seed(v: string);
-    setSeed(v: string): void;
-    get seed(): string;
+    setScene(seed: string, key: number[], pool: number[]): void;
+    get scene(): IRandScene;
     private _flatten;
     private _mixkey;
     private _tostring;
@@ -21,6 +25,5 @@ export declare class SeedRandom {
     double(): number;
     range(from: number, to: number): number;
     rangeInt(from: number, to: number): number;
-    constructor(seed: string);
-    static create(seed: string): SeedRandom;
 }
+export {};

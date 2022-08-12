@@ -24,6 +24,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 //
 // The following constants are related to IEEE 754 limits.
+// https://github.com/davidbau/seedrandom/blob/released/seedrandom.js
 //
 
 const width = 256;        // each RC4 output is 0 <= x < 256
@@ -38,6 +39,12 @@ interface IARC4 {
     i?: number;
     j?: number;
     S?: number[];
+}
+
+interface IRandScene {
+    seed: string;
+    key?: number[];
+    pool?: number[];
 }
 
 export class SeedRandom {
@@ -120,6 +127,7 @@ export class SeedRandom {
     private _quick(arc4: IARC4) { return this._arc4g(arc4, 4) / 0x100000000; }
     private _double(arc4: IARC4) { return this._prng(arc4); }
 
+    seed: string = null;
     pool: number[] = [];
     key: number[] = [];
 
@@ -132,17 +140,18 @@ export class SeedRandom {
     //
     // mixkey(math.random(), pool);
 
-    private _seed: string = null;
-    public set seed(v: string) {
-        this._seed = v;
+    public setScene(seed: string, key: number[], pool: number[]) {
+        if (seed && seed.length) this.seed = seed;
+        if (key) this.key = [...key];
+        if (pool) this.pool = [...pool];
     }
 
-    public setSeed(v: string) {
-        this._seed = v;
-    }
-
-    public get seed(): string {
-        return this._seed;
+    public get scene(): IRandScene {
+        return {
+            seed: this.seed,
+            key: [...this.key],
+            pool: [...this.pool]
+        };
     }
 
     //
@@ -255,14 +264,5 @@ export class SeedRandom {
 
     public rangeInt(from: number, to: number): number {
         return Math.floor(from + (this.random() * (to - from)));
-    }
-
-    constructor(seed: string) {
-        this.seed = seed;
-    }
-
-    public static create(seed: string): SeedRandom {
-        const sr = new SeedRandom(seed);
-        return sr;
     }
 }

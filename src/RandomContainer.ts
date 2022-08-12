@@ -1,35 +1,29 @@
 import { SeedRandomInstance } from "./SeedRandomInstance";
+import { ValueProcessor } from "./ValueProcessor";
 
 export class RandomContainer {
 
     toJSON(): any {
         const data: any = {};
         this.seedRandoms.forEach((v, k) => {
-            data[k] = v.jsonObj();
+            data[k] = v.toJSON();
         });
         return data;
     }
 
     public static fromJSON(json: string | any): RandomContainer {
-        const data = typeof json == 'string' ? JSON.parse(json) : json;
         const rc = new RandomContainer();
-        rc.initWithJSON(data);
+        rc.initWithJSON(json);
         return rc;
     }
 
-    public initWithJSON(data: any): void {
+    public initWithJSON(json: string | any): void {
+        const data = typeof json == 'string' ? JSON.parse(json) : json;
         this.seedRandoms.clear();
         for (const key in data) {
             if (Object.prototype.hasOwnProperty.call(data, key)) {
                 const riv = data[key];
-                const ri = new SeedRandomInstance(key);
-                ri.startSeed = riv.startSeed;
-                if (riv.history && riv.history.length) {
-                    ri.history.push(...riv.history);
-                    ri.setSeed(riv.history[ri.history.length - 1][1]);
-                }
-                else
-                    ri.setSeed(riv.startSeed);
+                const ri = SeedRandomInstance.fromJSON(key, riv);
                 this.seedRandoms.set(key, ri);
             }
         }
@@ -44,6 +38,16 @@ export class RandomContainer {
             this.seedRandoms.set(seedType, ri);
         }
         ri.resetSeed(seed);
+    }
+
+    public allkeys(): Array<string> {
+        return Array.from(this.seedRandoms.keys());
+    }
+
+    public getSeed(seedType: string): string {
+        let ri = this.seedRandoms.get(seedType);
+        if (ri) return ri.seed;
+        return null;
     }
 
     public setAllIndex(index: number): void {
@@ -61,6 +65,13 @@ export class RandomContainer {
         ri.setIndex(index);
     }
 
+    public Value(seedType: string): ValueProcessor {
+        let ri = this.seedRandoms.get(seedType);
+        if (!ri) throw new Error('RandomContainer.randomNext key [' + seedType + '] not found!');
+
+        return ri.Value();
+    }
+
     public randomNext(seedType: string): number {
         let ri = this.seedRandoms.get(seedType);
         if (!ri) throw new Error('RandomContainer.randomNext key [' + seedType + '] not found!');
@@ -76,7 +87,7 @@ export class RandomContainer {
         while (index >= ri.history.length) {
             ri.rand();
         }
-        return ri.history[index][0];
+        return ri.history[index];
     }
 
     public randomQueue(seedType: string, startIndex: number, endIndex: number): Array<number> {
@@ -90,7 +101,7 @@ export class RandomContainer {
 
         const ret: Array<number> = [];
         ri.history.slice(startIndex, endIndex).forEach(v => {
-            ret.push(v[0]);
+            ret.push(v);
         });
         return ret;
     }
