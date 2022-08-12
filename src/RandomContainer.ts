@@ -13,6 +13,12 @@ export class RandomContainer {
     public static fromJSON(json: string | any): RandomContainer {
         const data = typeof json == 'string' ? JSON.parse(json) : json;
         const rc = new RandomContainer();
+        rc.initWithJSON(data);
+        return rc;
+    }
+
+    public initWithJSON(data: any): void {
+        this.seedRandoms.clear();
         for (const key in data) {
             if (Object.prototype.hasOwnProperty.call(data, key)) {
                 const riv = data[key];
@@ -24,10 +30,9 @@ export class RandomContainer {
                 }
                 else
                     ri.setSeed(riv.startSeed);
-                rc.seedRandoms.set(key, ri);
+                this.seedRandoms.set(key, ri);
             }
         }
-        return rc;
     }
 
     protected seedRandoms: Map<string, SeedRandomInstance> = new Map<string, SeedRandomInstance>();

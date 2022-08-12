@@ -16,6 +16,11 @@ class RandomContainer {
     static fromJSON(json) {
         const data = typeof json == 'string' ? JSON.parse(json) : json;
         const rc = new RandomContainer();
+        rc.initWithJSON(data);
+        return rc;
+    }
+    initWithJSON(data) {
+        this.seedRandoms.clear();
         for (const key in data) {
             if (Object.prototype.hasOwnProperty.call(data, key)) {
                 const riv = data[key];
@@ -27,10 +32,9 @@ class RandomContainer {
                 }
                 else
                     ri.setSeed(riv.startSeed);
-                rc.seedRandoms.set(key, ri);
+                this.seedRandoms.set(key, ri);
             }
         }
-        return rc;
     }
     setSeed(seedType, seed) {
         let ri = this.seedRandoms.get(seedType);

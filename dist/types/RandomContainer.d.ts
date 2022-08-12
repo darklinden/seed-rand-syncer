@@ -2,6 +2,7 @@ import { SeedRandomInstance } from "./SeedRandomInstance";
 export declare class RandomContainer {
     toJSON(): any;
     static fromJSON(json: string | any): RandomContainer;
+    initWithJSON(data: any): void;
     protected seedRandoms: Map<string, SeedRandomInstance>;
     setSeed(seedType: string, seed: string): void;
     setAllIndex(index: number): void;
