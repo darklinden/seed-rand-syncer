@@ -8,7 +8,7 @@ export class RandomContainer {
         this.seedRandoms.forEach((v, k) => {
             data[k] = v.jsonObj();
         });
-        return JSON.stringify(data);
+        return data;
     }
     static fromJSON(json) {
         const data = typeof json == 'string' ? JSON.parse(json) : json;
@@ -37,16 +37,23 @@ export class RandomContainer {
         }
         ri.resetSeed(seed);
     }
-    restart() {
+    setAllIndex(index) {
         this.seedRandoms.forEach((v, k) => {
-            v.restart();
+            v.setIndex(0);
         });
+    }
+    setIndex(seedType, index) {
+        let ri = this.seedRandoms.get(seedType);
+        if (!ri) {
+            ri = new SeedRandomInstance(seedType);
+            this.seedRandoms.set(seedType, ri);
+        }
+        ri.setIndex(index);
     }
     randomNext(seedType) {
         let ri = this.seedRandoms.get(seedType);
         if (!ri)
             throw new Error('RandomContainer.randomNext key [' + seedType + '] not found!');
-        ri = new SeedRandomInstance(seedType);
         return ri.rand();
     }
     randomIndex(seedType, index) {

@@ -60,7 +60,7 @@ export class ValueProcessor {
         this.valueFunc = valueFunc;
     }
 
-    protected get Value(): number { return this.valueFunc(); }
+    public get Value(): number { return this.valueFunc(); }
 
     // Rangs
     public RangeInt(min: number/**int */, max: number/**int */): number /**int */ {

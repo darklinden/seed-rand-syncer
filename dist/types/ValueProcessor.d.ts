@@ -39,7 +39,7 @@ export declare type ValueFuncType = () => number;
 export declare class ValueProcessor {
     protected valueFunc: ValueFuncType;
     constructor(valueFunc: ValueFuncType);
-    protected get Value(): number;
+    get Value(): number;
     RangeInt(min: number, max: number): number;
     RangeFloat(min: number, max: number): number;
     RangeVec2<Out extends IVec2Like>(out: Out, min: IVec2Like, max: IVec2Like): Out;
